@@ -19,14 +19,17 @@ class ConfigAbstractFactory implements AbstractFactoryInterface {
 
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName) {
         $moduleName = strstr($requestedName, '\ModuleConfig', true);
-        
-        $pathToConfig = "module/$moduleName/config/module.config.php";
-        
-        if (!file_exists($pathToConfig)) {
-            throw new \RuntimeException("Cannot load config $pathToConfig");
+
+        /** @var \Zend\ModuleManager\ModuleManager */
+        $moduleManager = $serviceLocator->get('ModuleManager');
+
+        $config = $moduleManager->getModule($moduleName)->getConfig();
+
+        if (empty($config)) {
+            throw new \RuntimeException("Cannot load config for module $moduleName");
         }
         
-        return new ModuleConfig(include $pathToConfig);
+        return new ModuleConfig($config);
     }
 
 }

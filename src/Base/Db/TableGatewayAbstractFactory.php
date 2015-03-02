@@ -22,6 +22,9 @@ class TableGatewayAbstractFactory implements AbstractFactoryInterface {
         $moduleConfig = $serviceLocator->get("$moduleName\\ModuleConfig");
         
         $tableName = $moduleConfig->getDbTableName(strtolower("$moduleName-$entityName"));
+
+        // just for initialize global static adapter
+        $serviceLocator->get('Zend\Db\Adapter\Adapter');
         
         return new TableGateway($tableName);
     }

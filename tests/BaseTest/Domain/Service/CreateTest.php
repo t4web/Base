@@ -140,13 +140,13 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
             'isEmpty' => 'The input is required and cannot be empty'
         );
 
-        $result = array(
+        $errors = array(
             'surname' => $surnameError
         );
         
         $this->inputFilterMock->expects($this->once())
                 ->method('getMessages')
-                ->will($this->returnValue($result));
+                ->will($this->returnValue($errors));
 
         $data = array(
             'name' => 'John Doe',
@@ -158,10 +158,12 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
         $error = $this->createService->getErrors();
         
         $this->assertInstanceOf('Base\InputFilter\InvalidInputError', $error);
-        $this->assertFalse($error->hasError('name'));
-        $this->assertEmpty($error->getError('name'));
+        $this->assertFalse($error->hasErrors('name'));
+        $this->assertEmpty($error->getErrors('name'));
 
-        $this->assertTrue($error->hasError('surname'));
-        $this->assertEquals($surnameError, $error->getError('surname'));
+        $this->assertTrue($error->hasErrors('surname'));
+        $this->assertEquals($surnameError, $error->getErrors('surname'));
+
+        $this->assertEquals($errors, $error->getErrors());
     }
 }

@@ -17,7 +17,7 @@ class InvalidInputError {
      * @param string $fieldName
      * @return bool
      */
-    public function hasError($fieldName) {
+    public function hasErrors($fieldName) {
 
         if (!array_key_exists($fieldName, $this->errors)) {
             return false;
@@ -30,7 +30,11 @@ class InvalidInputError {
      * @param string $fieldName
      * @return array
      */
-    public function getError($fieldName) {
+    public function getErrors($fieldName = null) {
+
+        if (empty($fieldName)) {
+            return $this->errors;
+        }
 
         if (!array_key_exists($fieldName, $this->errors)) {
             return array();

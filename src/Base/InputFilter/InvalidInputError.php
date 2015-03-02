@@ -43,4 +43,8 @@ class InvalidInputError {
         return $this->errors[$fieldName];
     }
 
+    public function toArray() {
+        return $this->getErrors();
+    }
+
 }

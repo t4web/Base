@@ -6,9 +6,9 @@ interface CreateInterface {
     
     public function isValid(array $data);
     
-    public function create($id = null);
+    public function create(array $data);
     
-    public function getMessages();
+    public function getErrors();
     
     public function getValues();
 }

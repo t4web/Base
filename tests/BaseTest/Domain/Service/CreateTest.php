@@ -66,17 +66,20 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
     
     public function testCreate() {
         $data = array('foo' => 'bar');
-        $id = 111;
-        
+
         $entityMock = $this->getMock('Base\Domain\Entity');
         
+        $this->inputFilterMock->expects($this->once())
+                ->method('isValid')
+                ->will($this->returnValue(true));
+
         $this->inputFilterMock->expects($this->once())
                 ->method('getValues')
                 ->will($this->returnValue($data));
         
         $this->entityFactoryMock->expects($this->once())
                 ->method('create')
-                ->with($this->equalTo($data), $this->equalTo($id))
+                ->with($this->equalTo($data))
                 ->will($this->returnValue($entityMock));
         
         $this->repositoryMock->expects($this->once())
@@ -86,7 +89,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
         $this->eventManagerMock->expects($this->once())
             ->method('trigger');
 
-        $this->assertSame($entityMock, $this->createService->create($id));
+        $this->assertSame($entityMock, $this->createService->create($data));
     }
     
     public function testCreateWithId() {
@@ -94,6 +97,10 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
         
         $entityMock = $this->getMock('Base\Domain\Entity');
         
+        $this->inputFilterMock->expects($this->once())
+                ->method('isValid')
+                ->will($this->returnValue(true));
+
         $this->inputFilterMock->expects($this->once())
                 ->method('getValues')
                 ->will($this->returnValue($data));
@@ -110,26 +117,51 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
         $this->eventManagerMock->expects($this->never())
             ->method('trigger');
 
-        $this->assertSame($entityMock, $this->createServiceWithoutEventManager->create());
+        $this->assertSame($entityMock, $this->createServiceWithoutEventManager->create($data));
     }
     
     public function testCreateInputFilterGetValuesReturnEmptyArray() {
         $this->inputFilterMock->expects($this->once())
+                ->method('isValid')
+                ->will($this->returnValue(true));
+
+        $this->inputFilterMock->expects($this->once())
                 ->method('getValues')
                 ->will($this->returnValue(array()));
-        
+
         $this->setExpectedException('RuntimeException', "Cannot create entity form empty data");
         
-        $this->createService->create();
+        $this->createService->create(array());
     }
     
-    public function testGetMessages() {
-        $result = array('foo' => 'bar');
+    public function testGetErrors() {
+
+        $surnameError = array(
+            'isEmpty' => 'The input is required and cannot be empty'
+        );
+
+        $result = array(
+            'surname' => $surnameError
+        );
         
         $this->inputFilterMock->expects($this->once())
                 ->method('getMessages')
                 ->will($this->returnValue($result));
+
+        $data = array(
+            'name' => 'John Doe',
+            'surname' => '',
+        );
+
+        $this->createService->create($data);
+
+        $error = $this->createService->getErrors();
         
-        $this->assertEquals($result, $this->createService->getMessages());
+        $this->assertInstanceOf('Base\InputFilter\InvalidInputError', $error);
+        $this->assertFalse($error->hasError('name'));
+        $this->assertEmpty($error->getError('name'));
+
+        $this->assertTrue($error->hasError('surname'));
+        $this->assertEquals($surnameError, $error->getError('surname'));
     }
 }

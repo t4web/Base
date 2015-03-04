@@ -4,11 +4,11 @@ namespace Base\InputFilter\Element;
 
 use Zend\Validator;
 
-class Dt extends Element {
+class Date extends Element {
 
-    public function __construct($name = null) {
+    public function __construct($name = null, $format = 'Y-m-d H:i:s') {
 
-        $validator = new Validator\Date(array('format' => 'Y-m-d H:i:s'));
+        $validator = new Validator\Date(array('format' => $format));
         $validator->setMessages(array(
             Validator\Date::INVALID => "Неверный тип поля. Значение может быть числовым, строковым или датой",
             Validator\Date::INVALID_DATE => "Некорректное значение даты",

@@ -6,7 +6,7 @@ use Zend\Validator;
 
 class InArray extends Element {
 
-    public function __construct(array $data, $name = null) {
+    public function __construct($name, array $data) {
         parent::__construct($name);
 
         $validator = new Validator\InArray(array('haystack' => $data));
@@ -16,7 +16,5 @@ class InArray extends Element {
 
         $this->getValidatorChain()
              ->attach($validator);
-        
     }
-    
 }

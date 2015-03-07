@@ -21,7 +21,7 @@ class BaseFinder {
         return $this->repositoryDb->find($criteria);
     }
     
-    public function findMany($filter) {
+    public function findMany($filter = array()) {
         $criteria = $this->criteriaFactory->create($filter);
         
         return $this->repositoryDb->findMany($criteria);

@@ -1,5 +1,5 @@
 {
-    "name": "t4web/t4web-base",
+    "name": "t4web/base",
     "description": "ZF2 Module. A set of generic (abstract) classes which are commonly used across multiple modules.",
     "type": "library",
     "license": "BSD-3-Clause",
@@ -8,7 +8,7 @@
         "base",
         "abstract classes"
     ],
-    "homepage": "https://github.com/t4web/T4webBase",
+    "homepage": "https://github.com/t4web/Base",
     "authors": [
         {
             "name": "Max Gulturyan",

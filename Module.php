@@ -1,5 +1,5 @@
 <?php
-namespace Base;
+namespace T4webBase;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;

@@ -1,6 +1,6 @@
 <?php
 
-namespace BaseTest;
+namespace T4webBaseTest;
 
 use Zend\Loader\AutoloaderFactory;
 use RuntimeException;

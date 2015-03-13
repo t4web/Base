@@ -2,15 +2,15 @@
 
 use Zend\ServiceManager\ServiceManager;
 use Zend\Db\Sql\Select;
-use Base\Db\QueryBuilder;
-use Base\Db\Select as BaseSelect;
+use T4webBase\Db\QueryBuilder;
+use T4webBase\Db\Select as BaseSelect;
 
 return array(
 
     'service_manager' => array(
         'factories' => array(
-            'Base\Db\QueryBuilder' => function(ServiceManager $serviceManager) {
-                $serviceManager->setShared('Base\Db\QueryBuilder', false);
+            'T4webBase\Db\QueryBuilder' => function(ServiceManager $serviceManager) {
+                $serviceManager->setShared('T4webBase\Db\QueryBuilder', false);
 
                 $zendSelect = new Select();
                 $select = new BaseSelect($zendSelect);
@@ -19,13 +19,13 @@ return array(
             },
         ),
         'abstract_factories' => array(
-            'Base\Module\ConfigAbstractFactory',
-            'Base\Domain\Factory\EntityAbstractFactory',
-            'Base\Domain\Mapper\DbMapperAbstractFactory',
-            'Base\Domain\Repository\DbRepositoryAbstractFactory',
-            'Base\Db\TableGatewayAbstractFactory',
-            'Base\Db\TableAbstractFactory',
-            'Base\Domain\Criteria\CriteriaFactoryAbstractFactory',
+            'T4webBase\Module\ConfigAbstractFactory',
+            'T4webBase\Domain\Factory\EntityAbstractFactory',
+            'T4webBase\Domain\Mapper\DbMapperAbstractFactory',
+            'T4webBase\Domain\Repository\DbRepositoryAbstractFactory',
+            'T4webBase\Db\TableGatewayAbstractFactory',
+            'T4webBase\Db\TableAbstractFactory',
+            'T4webBase\Domain\Criteria\CriteriaFactoryAbstractFactory',
         ),
     ),
 

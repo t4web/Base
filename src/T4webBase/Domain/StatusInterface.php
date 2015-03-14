@@ -2,9 +2,9 @@
 
 namespace T4webBase\Domain;
 
-interface StatusInterface {
-    
-    public function getName();    
-    public function getCode();
+/**
+ * @deprecated
+ */
+interface StatusInterface extends EnumInterface {
     
 }

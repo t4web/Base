@@ -3,7 +3,7 @@
 namespace T4webBaseTest\Domain\Service;
 
 use T4webBase\Domain\Collection;
-use T4webBaseTest\Domain\Assets\Service\Update;
+use T4webBase\Domain\Service\Update;
 use T4webBaseTest\Domain\Assets\Criteria\Id;
 use T4webBaseTest\Domain\Assets\Criteria\Ids;
 

@@ -2,16 +2,18 @@
 
 namespace T4webBase\Domain\Service;
 
+use Zend\EventManager\EventManager;
 use T4webBase\InputFilter\InputFilterInterface;
+use T4webBase\InputFilter\InvalidInputError;
 use T4webBase\Domain\Repository\DbRepository;
 use T4webBase\Domain\Criteria\Factory as CriteriaFactory;
-use T4webBase\InputFilter\InvalidInputError;
-use Zend\EventManager\EventManager;
 use T4webBase\Domain\EntityInterface;
-use Zend\Filter\Word\CamelCaseToUnderscore;
 
-abstract class UpdateAbstract implements UpdateInterface {
+class Update implements UpdateInterface {
 
+    /**
+     * @var InputFilterInterface
+     */
     protected $inputFilter;
 
     /**
@@ -23,8 +25,11 @@ abstract class UpdateAbstract implements UpdateInterface {
      * @var \T4webBase\Domain\Criteria\Factory
      */
     protected $criteriaFactory;
+
+    /**
+     * @var EventManager
+     */
     protected $eventManager;
-    protected $filterCamelCaseToUnderscore;
 
     /**
      * @var InvalidInputError
@@ -41,7 +46,6 @@ abstract class UpdateAbstract implements UpdateInterface {
         $this->repository = $repository;
         $this->criteriaFactory = $criteriaFactory;
         $this->eventManager = $eventManager;
-        $this->filterCamelCaseToUnderscore = new CamelCaseToUnderscore();
     }
 
     public function isValid(array $data) {
@@ -53,7 +57,29 @@ abstract class UpdateAbstract implements UpdateInterface {
         return true;
     }
 
-    abstract public function update($id, array $data);
+    /**
+     * @param $id
+     * @param array $data
+     * @return EntityInterface|void
+     */
+    public function update($id, array $data) {
+
+        if (!$this->isValid($data)) {
+            return;
+        }
+
+        $data = $this->inputFilter->getValues();
+
+        /** @var EntityInterface $entity */
+        $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria('Id', $id));
+
+        $entity->populate($data);
+
+        $this->repository->add($entity);
+        $this->trigger('update:post', $entity);
+
+        return $entity;
+    }
 
     protected function trigger($event, EntityInterface $entity) {
         if (!$this->eventManager) {

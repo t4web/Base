@@ -128,16 +128,6 @@ class UpdateTest extends \PHPUnit_Framework_TestCase {
         );
     }
     
-    public function testGetMessages() {
-        $result = array('foo' => 'bar');
-        
-        $this->inputFilterMock->expects($this->once())
-                ->method('getMessages')
-                ->will($this->returnValue($result));
-        
-        $this->assertEquals($result, $this->service->getMessages());
-    }
-
     public function testUpdateAllReturnNull() {
         $id = 1;
         $criteria = new Id($id);

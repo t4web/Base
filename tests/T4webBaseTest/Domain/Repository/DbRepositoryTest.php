@@ -3,30 +3,48 @@
 namespace T4webBaseTest\Domain\Repository;
 
 use T4webBase\Domain\Repository\DbRepository;
+use T4webBase\Domain\Repository\IdentityMap;
+use T4webBaseTest\Domain\Assets\SimpleEntity;
 
 class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
     
-    private $DbRepository;
+    private $dbRepository;
     private $dbMapperMock;
     private $tableGatewayMock;
     private $queryBuilderMock;
+
+    /**
+     * @var IdentityMap
+     */
+    private $identityMapMock;
+
+    /**
+     * @var \Zend\EventManager\EventManager
+     */
+    private $eventManagerMock;
 
     public function setUp() {
         $this->dbMapperMock = $this->getMock('T4webBase\Domain\Mapper\DbMapperInterface');
         $this->queryBuilderMock = $this->getMock('T4webBase\Db\QueryBuilderInterface');
         $this->tableGatewayMock = $this->getMock('T4webBase\Db\TableGatewayInterface');
-        
-        $this->DbRepository = new DbRepository(
+        $this->identityMapMock = new IdentityMap();
+        $this->eventManagerMock = $this->getMock('Zend\EventManager\EventManagerInterface');
+        $this->eventManagerMock = new \Zend\EventManager\EventManager();
+
+        $this->dbRepository = new DbRepository(
                 $this->tableGatewayMock,
                 $this->dbMapperMock,
-                $this->queryBuilderMock);
+                $this->queryBuilderMock,
+                $this->identityMapMock,
+                $this->eventManagerMock);
     }
-    
+
     /**
      * @dataProvider providerFindMany
      */
+
     public function testFindMany($rows) {
-        
+
         $criteriaMock = $this->getMock('T4webBase\Domain\Criteria\CriteriaInterface');
         $criteriaMock->expects($this->once())
                 ->method('build')
@@ -59,9 +77,9 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->will($this->returnValue($expectedCollection));
         
         $identityMap =  new \T4webBase\Domain\Repository\IdentityMap();
-        $this->DbRepository->setIdentityMap($identityMap);
+        $this->dbRepository->setIdentityMap($identityMap);
         
-        $actualCollection = $this->DbRepository->findMany($criteriaMock);
+        $actualCollection = $this->dbRepository->findMany($criteriaMock);
         
         $this->assertSame($expectedCollection, $actualCollection);
         $this->assertSame($entity1, $identityMap[$rows[0]['id']]);
@@ -80,7 +98,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
         $entity = new \T4webBase\Domain\Entity();
         $identityMap =  new \T4webBase\Domain\Repository\IdentityMap();
         
-        $this->DbRepository->setIdentityMap($identityMap);
+        $this->dbRepository->setIdentityMap($identityMap);
         
         $row = array(
             'id' => $id,
@@ -100,47 +118,102 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->method('getLastInsertId')
                 ->will($this->returnValue($lastInsertId));
         
-        $this->DbRepository->add($entity);
+        $this->dbRepository->add($entity);
         
         $this->assertSame($entity, $identityMap[$lastInsertId]);
     }
     
-    public function testAddExistingEntity() {
+    public function testAddExistingChangedEntity() {
+
         $id = 111;
-        $entityMock = $this->getMock('T4webBase\Domain\Entity');
-        $entityMock->expects($this->at(0))
-                ->method('getId')
-                ->will($this->returnValue($id));
-        
-        $identityMapMock = $this->getMock('T4webBase\Domain\Repository\IdentityMap');
-        $identityMapMock->expects($this->once())
-                ->method('offsetExists')
-                ->with($id)
-                ->will($this->returnValue(true));
-        $this->DbRepository->setIdentityMap($identityMapMock);
-        
-        $row = array(
+        $originalEntity = new SimpleEntity([
             'id' => $id,
-            'foo' => 'bar'
-        );
+            'name' => 'some name',
+            'status' => 1
+        ]);
+
+        $data = [
+            'id' => $id,
+            'name' => 'changed name',
+            'status' => 2
+        ];
+        $changedEntity = new SimpleEntity($data);
+
+        $this->identityMapMock->offsetSet($id, $originalEntity);
+
         $this->dbMapperMock->expects($this->once())
-                ->method('toTableRow')
-                ->with($this->equalTo($entityMock))
-                ->will($this->returnValue($row));
-        
-        $this->tableGatewayMock->expects($this->never())
-                ->method('insert');
-        
+            ->method('toTableRow')
+            ->with($this->equalTo($changedEntity))
+            ->will($this->returnValue($data));
+
         $this->tableGatewayMock->expects($this->once())
-                ->method('updateByPrimaryKey')
-                ->with(
-                    $this->equalTo($row),
-                    $this->equalTo($id)
-                );
-        $identityMapMock->expects($this->never())
-                ->method('offsetSet');
-        
-        $this->DbRepository->add($entityMock);
+            ->method('updateByPrimaryKey')
+            ->with(
+                $this->equalTo($data),
+                $this->equalTo($id)
+            );
+
+        $callbackMock = $this->getMock('stdClass', array('onChangeEntity'));
+        $callbackMock->expects($this->once())
+            ->method('onChangeEntity')
+            ->will($this->returnValue(true));
+
+        $this->eventManagerMock->attach(
+            'entity:T4webBaseTest\Domain\Assets\SimpleEntity:changed',
+            array($callbackMock, 'onChangeEntity')
+        );
+
+        $callbackMock2 = $this->getMock('stdClass', array('onChangeAttribute'));
+        $callbackMock2->expects($this->exactly(2))
+            ->method('onChangeAttribute')
+            ->will($this->returnValue(true));
+
+        $this->eventManagerMock->attach(
+            'attribute:T4webBaseTest\Domain\Assets\SimpleEntity:name:changed',
+            array($callbackMock2, 'onChangeAttribute')
+        );
+        $this->eventManagerMock->attach(
+            'attribute:T4webBaseTest\Domain\Assets\SimpleEntity:status:changed',
+            array($callbackMock2, 'onChangeAttribute')
+        );
+
+        $this->dbRepository->add($changedEntity);
+    }
+
+    public function testAddExistingNotChangedEntity() {
+
+        $id = 111;
+        $data = [
+            'id' => $id,
+            'name' => 'some name',
+            'status' => 1
+        ];
+        $originalEntity = new SimpleEntity($data);
+
+
+        $changedEntity = clone $originalEntity;
+
+        $this->identityMapMock->offsetSet($id, $originalEntity);
+
+        $this->dbMapperMock->expects($this->once())
+            ->method('toTableRow')
+            ->with($this->equalTo($changedEntity))
+            ->will($this->returnValue($data));
+
+        $this->tableGatewayMock->expects($this->never())
+            ->method('updateByPrimaryKey');
+
+        $callbackMock = $this->getMock('stdClass', array('onChangeEntity'));
+        $callbackMock->expects($this->never())
+            ->method('onChangeEntity')
+            ->will($this->returnValue(true));
+
+        $this->eventManagerMock->attach(
+            'entity:T4webBaseTest\Domain\Assets\SimpleEntity:changed',
+            array($callbackMock, 'onChangeEntity')
+        );
+
+        $this->dbRepository->add($changedEntity);
     }
     
     public function testAddNewEntityWithId() {
@@ -152,7 +225,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->method('offsetExists')
                 ->with($id)
                 ->will($this->returnValue(false));
-        $this->DbRepository->setIdentityMap($identityMapMock);
+        $this->dbRepository->setIdentityMap($identityMapMock);
         
         $row = array(
             'id' => $id,
@@ -174,7 +247,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->method('offsetSet')
                 ->with($id, $entity);
         
-        $this->DbRepository->add($entity);
+        $this->dbRepository->add($entity);
     }
     
     public function testFind() {
@@ -199,7 +272,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->will($this->returnValue($row));
         
         $expectedEntityMock = $this->getMock('T4webBase\Domain\EntityInterface');
-        $expectedEntityMock->expects($this->once())
+        $expectedEntityMock->expects($this->any())
                 ->method('getId')
                 ->will($this->returnValue(111));
         
@@ -209,13 +282,13 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->will($this->returnValue($expectedEntityMock));
         
         $identityMapMock = $this->getMock('T4webBase\Domain\Repository\IdentityMap');
-        $this->DbRepository->setIdentityMap($identityMapMock);
+        $this->dbRepository->setIdentityMap($identityMapMock);
         
         $identityMapMock->expects($this->once())
                 ->method('offsetSet')
                 ->with(111, $expectedEntityMock);
         
-        $actualResult = $this->DbRepository->find($criteriaMock);
+        $actualResult = $this->dbRepository->find($criteriaMock);
         
         $this->assertSame($expectedEntityMock, $actualResult);
     }
@@ -244,7 +317,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
         $this->dbMapperMock->expects($this->never())
                 ->method('fromTableRow');
         
-        $actualResult = $this->DbRepository->find($criteriaMock);
+        $actualResult = $this->dbRepository->find($criteriaMock);
         
         $this->assertNull( $actualResult);
     }
@@ -282,8 +355,8 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
         $criteriaMock = $this->getMock('T4webBase\Domain\Criteria\CriteriaInterface');
         
         $this->assertSame(
-            $this->DbRepository->find($criteriaMock),
-            $this->DbRepository->find($criteriaMock)
+            $this->dbRepository->find($criteriaMock),
+            $this->dbRepository->find($criteriaMock)
         );
         
     }
@@ -308,7 +381,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->with($this->equalTo($selectMock))
                 ->will($this->returnValue(5));
         
-        $this->assertEquals(5, $this->DbRepository->count($criteriaMock));
+        $this->assertEquals(5, $this->dbRepository->count($criteriaMock));
     }
     
     public function testDeleteEntityWithId() {
@@ -319,7 +392,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 ->method('deleteByPrimaryKey')
                 ->with($this->equalTo($id));
         
-        $this->DbRepository->delete($entity);
+        $this->dbRepository->delete($entity);
     }
 
     public function testDeleteEntityWithoutId() {
@@ -328,7 +401,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
         $this->tableGatewayMock->expects($this->never())
                 ->method('deleteByPrimaryKey');
         
-        $this->DbRepository->delete($entity);
+        $this->dbRepository->delete($entity);
     }
 
     /**
@@ -363,7 +436,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
             ->with($this->equalTo($selectMock))
             ->will($this->returnValue($rows));
 
-        $actualArray = $this->DbRepository->findManyByColumns($criteriaMock, $columns);
+        $actualArray = $this->dbRepository->findManyByColumns($criteriaMock, $columns);
 
         $this->assertEquals($expectedArray, $actualArray);
     }

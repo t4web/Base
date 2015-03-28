@@ -27,6 +27,9 @@ return array(
             'T4webBase\Db\TableAbstractFactory',
             'T4webBase\Domain\Criteria\CriteriaFactoryAbstractFactory',
         ),
+        'invokables' => array(
+            'T4webBase\Domain\Repository\IdentityMap' => 'T4webBase\Domain\Repository\IdentityMap',
+        ),
     ),
 
 );

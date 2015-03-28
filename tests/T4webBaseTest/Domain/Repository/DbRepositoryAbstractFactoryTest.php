@@ -26,13 +26,26 @@ class DbRepositoryAbstractFactoryTest extends \PHPUnit_Framework_TestCase {
                 ->will($this->returnValue($DbMapperMock));
         
         $queryBuilderMock = $this->getMock('T4webBase\Db\QueryBuilderInterface');
-        
+
         $serviceLocatorMock->expects($this->at(2))
                 ->method('get')
                 ->with($this->equalTo("T4webBase\\Db\\QueryBuilder"))
                 ->will($this->returnValue($queryBuilderMock));
-        
-        
+
+        $identityMapMock = $this->getMock('T4webBase\Domain\Repository\IdentityMap');
+
+        $serviceLocatorMock->expects($this->at(3))
+                ->method('get')
+                ->with($this->equalTo('T4webBase\Domain\Repository\IdentityMap'))
+                ->will($this->returnValue($identityMapMock));
+
+        $eventManagerMock = $this->getMock('Zend\EventManager\EventManagerInterface');
+
+        $serviceLocatorMock->expects($this->at(4))
+                ->method('get')
+                ->with($this->equalTo('EventManager'))
+                ->will($this->returnValue($eventManagerMock));
+
         $requestedName = "$moduleName\\$entityName\\Repository\\DbRepository";
         
         $abstractFactory = new DbRepositoryAbstractFactory();
@@ -42,6 +55,7 @@ class DbRepositoryAbstractFactoryTest extends \PHPUnit_Framework_TestCase {
         $this->assertAttributeSame($tableGatewayMock, 'tableGateway', $repository);
         $this->assertAttributeSame($DbMapperMock, 'dbMapper', $repository);
         $this->assertAttributeSame($queryBuilderMock, 'queryBuilder', $repository);
+        $this->assertAttributeSame($identityMapMock, 'identityMap', $repository);
     }
     
     public function testCanCreateServiceWithName() {

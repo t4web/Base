@@ -25,6 +25,7 @@ class DbRepositoryAbstractFactory implements AbstractFactoryInterface {
         $identityMap = clone $serviceLocator->get('T4webBase\Domain\Repository\IdentityMap');
         $identityMapOriginal = clone $identityMap;
         $eventManager = $serviceLocator->get('EventManager');
+        $eventManager->addIdentifiers('T4webBase\Domain\Repository\DbRepository');
 
         return new DbRepository(
             $tableGateway,

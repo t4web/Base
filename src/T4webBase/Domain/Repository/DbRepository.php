@@ -158,6 +158,7 @@ class DbRepository {
 
             return $result;
         } else {
+
             $this->tableGateway->insert($data);
         
             if (empty($id)) {
@@ -193,17 +194,17 @@ class DbRepository {
         return $this->tableGateway->updateByAttribute($data, $attributeName, $attributeValue);
     }
 
-    private function isEntityChanged(EntityInterface $changedEntity) {
+    protected function isEntityChanged(EntityInterface $changedEntity) {
         $originalEntity = $this->getIdentityMap()->offsetGet($changedEntity->getId());
         return $changedEntity != $originalEntity;
     }
 
-    private function triggerChanges(EntityChangedEvent $e) {
+    protected function triggerChanges(EntityChangedEvent $e) {
         $changedEntity = $e->getChangedEntity();
         $this->eventManager->trigger($this->getEntityChangeEventName($changedEntity), $this, $e);
     }
 
-    private function triggerAttributesChange(EntityChangedEvent $e) {
+    protected function triggerAttributesChange(EntityChangedEvent $e) {
         $changedEntity = $e->getChangedEntity();
 
         $originalAttrs = $e->getOriginalEntity()->extract();
@@ -214,26 +215,26 @@ class DbRepository {
         }
     }
 
-    private function getEntityChangeEventName(EntityInterface $changedEntity) {
+    protected function getEntityChangeEventName(EntityInterface $changedEntity) {
         return sprintf('entity:%s:changed', get_class($changedEntity));
     }
 
-    private function getAttributeChangeEventName(EntityInterface $changedEntity, $attributeName) {
+    protected function getAttributeChangeEventName(EntityInterface $changedEntity, $attributeName) {
         return sprintf('attribute:%s:%s:changed', get_class($changedEntity), $attributeName);
     }
 
     /**
      * @return EntityChangedEvent
      */
-    private function getEvent() {
+    protected function getEvent() {
         if (null === $this->event) {
             $this->event = new EntityChangedEvent();
             $this->event->setTarget($this);
         }
         return $this->event;
     }
-    
-    private function toIdentityMap(EntityInterface $entity) {
+
+    protected function toIdentityMap(EntityInterface $entity) {
         $this->getIdentityMap()->offsetSet($entity->getId(), $entity);
     }
 }

@@ -55,7 +55,7 @@ class DbRepositoryAbstractFactoryTest extends \PHPUnit_Framework_TestCase {
         $this->assertAttributeSame($tableGatewayMock, 'tableGateway', $repository);
         $this->assertAttributeSame($DbMapperMock, 'dbMapper', $repository);
         $this->assertAttributeSame($queryBuilderMock, 'queryBuilder', $repository);
-        $this->assertAttributeSame($identityMapMock, 'identityMap', $repository);
+        $this->assertAttributeInstanceOf('T4webBase\Domain\Repository\IdentityMap', 'identityMap', $repository);
     }
     
     public function testCanCreateServiceWithName() {

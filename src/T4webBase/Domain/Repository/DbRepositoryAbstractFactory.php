@@ -23,6 +23,7 @@ class DbRepositoryAbstractFactory implements AbstractFactoryInterface {
         $DbMapper = $serviceLocator->get("$moduleName\\{$entityName}\\Mapper\\DbMapper");
         $queryBuilder = $serviceLocator->get('T4webBase\Db\QueryBuilder');
         $identityMap = clone $serviceLocator->get('T4webBase\Domain\Repository\IdentityMap');
+        $identityMapOriginal = clone $identityMap;
         $eventManager = $serviceLocator->get('EventManager');
 
         return new DbRepository(
@@ -30,6 +31,7 @@ class DbRepositoryAbstractFactory implements AbstractFactoryInterface {
             $DbMapper,
             $queryBuilder,
             $identityMap,
+            $identityMapOriginal,
             $eventManager);
     }
 

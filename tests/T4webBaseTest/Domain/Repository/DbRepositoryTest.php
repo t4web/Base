@@ -19,6 +19,11 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
     private $identityMapMock;
 
     /**
+     * @var IdentityMap
+     */
+    private $identityMapOriginalMock;
+
+    /**
      * @var \Zend\EventManager\EventManager
      */
     private $eventManagerMock;
@@ -28,6 +33,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
         $this->queryBuilderMock = $this->getMock('T4webBase\Db\QueryBuilderInterface');
         $this->tableGatewayMock = $this->getMock('T4webBase\Db\TableGatewayInterface');
         $this->identityMapMock = new IdentityMap();
+        $this->identityMapOriginalMock = new IdentityMap();
         $this->eventManagerMock = $this->getMock('Zend\EventManager\EventManagerInterface');
         $this->eventManagerMock = new \Zend\EventManager\EventManager();
 
@@ -36,6 +42,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
                 $this->dbMapperMock,
                 $this->queryBuilderMock,
                 $this->identityMapMock,
+                $this->identityMapOriginalMock,
                 $this->eventManagerMock);
     }
 
@@ -139,6 +146,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
         ];
         $changedEntity = new SimpleEntity($data);
 
+        $this->identityMapOriginalMock->offsetSet($id, $originalEntity);
         $this->identityMapMock->offsetSet($id, $originalEntity);
 
         $this->dbMapperMock->expects($this->once())
@@ -193,6 +201,7 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
 
         $changedEntity = clone $originalEntity;
 
+        $this->identityMapOriginalMock->offsetSet($id, $originalEntity);
         $this->identityMapMock->offsetSet($id, $originalEntity);
 
         $this->dbMapperMock->expects($this->once())

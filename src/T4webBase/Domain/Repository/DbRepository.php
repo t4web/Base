@@ -32,6 +32,11 @@ class DbRepository {
     protected $identityMap;
 
     /**
+     * @var IdentityMap
+     */
+    protected $identityMapOriginal;
+
+    /**
      * @var EventManagerInterface
      */
     protected $eventManager;
@@ -46,12 +51,14 @@ class DbRepository {
             DbMapperInterface $dbMapper,
             QueryBuilderInterface $queryBuilder,
             IdentityMap $identityMap,
+            IdentityMap $identityMapOriginal,
             EventManagerInterface $eventManager) {
         
         $this->tableGateway = $tableGateway;
         $this->dbMapper = $dbMapper;
         $this->queryBuilder = $queryBuilder;
         $this->identityMap = $identityMap;
+        $this->identityMapOriginal = $identityMapOriginal;
         $this->eventManager = $eventManager;
     }
 
@@ -149,7 +156,7 @@ class DbRepository {
             $result = $this->tableGateway->updateByPrimaryKey($data, $id);
 
             $e = $this->getEvent();
-            $originalEntity = $this->getIdentityMap()->offsetGet($entity->getId());
+            $originalEntity = $this->identityMapOriginal->offsetGet($entity->getId());
             $e->setOriginalEntity($originalEntity);
             $e->setChangedEntity($entity);
 
@@ -195,7 +202,7 @@ class DbRepository {
     }
 
     protected function isEntityChanged(EntityInterface $changedEntity) {
-        $originalEntity = $this->getIdentityMap()->offsetGet($changedEntity->getId());
+        $originalEntity = $this->identityMapOriginal->offsetGet($changedEntity->getId());
         return $changedEntity != $originalEntity;
     }
 
@@ -236,5 +243,6 @@ class DbRepository {
 
     protected function toIdentityMap(EntityInterface $entity) {
         $this->getIdentityMap()->offsetSet($entity->getId(), $entity);
+        $this->identityMapOriginal->offsetSet($entity->getId(), clone $entity);
     }
 }

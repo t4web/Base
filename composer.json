@@ -26,7 +26,8 @@
 
     "autoload": {
         "psr-0": {
-            "T4webBase": "src/"
+            "T4webBase": "src/",
+            "T4webBaseTest": "tests/"
         },
         "classmap": [
             "./Module.php"

@@ -8,7 +8,5 @@ interface CreateInterface {
     
     public function create(array $data);
     
-    public function getErrors();
-    
     public function getValues();
 }

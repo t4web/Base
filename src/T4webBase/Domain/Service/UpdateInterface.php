@@ -14,7 +14,5 @@ interface UpdateInterface {
 
     public function delete($id);
 
-    public function getErrors();
-
     public function getValues();
 }

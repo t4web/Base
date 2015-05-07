@@ -5,11 +5,11 @@ abstract class ServiceAbstract implements ServiceInterface {
     
     protected $message;
     
-    public function getError(){
+    public function getError() {
         return $this->message;
     }
     
-    protected function setError($error){
+    protected function setError($error) {
         $this->message = $error;
     }
 }

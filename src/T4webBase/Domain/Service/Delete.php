@@ -36,7 +36,7 @@ class Delete implements DeleteInterface {
     public function delete($id, $attribyteName = 'Id') {
         $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria($attribyteName, $id));
         if (!$entity) {
-            $this->setErrors(array('general' => 'Entity does not found.'));
+            $this->setErrors(array('general' => sprintf("Entity #%s does not found.", $id)));
             return false;
         }
         

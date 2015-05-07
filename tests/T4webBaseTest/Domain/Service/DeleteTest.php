@@ -91,7 +91,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase {
     public function testDelete_ErrorNotFoundEntity_ReturnNull() {
         $id = 1;
         $criteria = new Id($id);
-        $errors = new InvalidInputError(array('general' => 'Entity does not found.'));
+        $errors = new InvalidInputError(array('general' => "Entity #$id does not found."));
 
         $this->criteriaFactoryMock->expects($this->once())
                 ->method('getNativeCriteria')

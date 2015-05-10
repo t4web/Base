@@ -15,15 +15,15 @@ class Name extends Element {
         ));
         $validatorStringLength->setMessages(array(
             Validator\StringLength::INVALID => "Неверный формат поля",
-            Validator\StringLength::TOO_LONG => "Количество символов в поле не может быть больше ". $max,
-            Validator\StringLength::TOO_SHORT => "Количество символов в поле не может быть меньше ". $min,
+            Validator\StringLength::TOO_LONG => "Количество символов в поле не может быть больше " . $max,
+            Validator\StringLength::TOO_SHORT => "Количество символов в поле не может быть меньше " . $min,
         ));
 
         $this->getFilterChain()
-             ->attach(new FilterString());
+                ->attach(new FilterString());
 
         $this->getValidatorChain()
-             ->attach($validatorStringLength);
+                ->attach($validatorStringLength);
 
         parent::__construct($name);
     }

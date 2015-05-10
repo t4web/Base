@@ -34,7 +34,7 @@ class Factory {
                         $criteria = $this->getCriteria($moduleName, $entityName, $criteriaName, $value);
                     }
                     
-                    if ($moduleName.$entityName != $this->moduleName.$this->entityName) {
+                    if ($moduleName . $entityName != $this->moduleName . $this->entityName) {
                         
                         if (empty($this->dependencies[$this->entityName][$moduleName][$entityName]['table'])) {
                             throw new \RuntimeException("Dependency table for module $moduleName entity $entityName not found");

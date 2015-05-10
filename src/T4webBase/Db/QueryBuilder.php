@@ -189,7 +189,7 @@ class QueryBuilder implements QueryBuilderInterface {
     }
     
     public function addColumn($columnName, $alias = '') {
-        if(empty($alias)) {
+        if (empty($alias)) {
             $this->columns[] = $columnName;
             return $this;
         }

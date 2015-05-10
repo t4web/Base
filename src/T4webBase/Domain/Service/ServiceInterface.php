@@ -1,7 +1,7 @@
 <?php
 namespace T4webBase\Domain\Service;
 
-interface ServiceInterface{
+interface ServiceInterface {
         
     public function getError();
 

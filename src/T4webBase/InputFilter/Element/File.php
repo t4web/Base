@@ -15,7 +15,7 @@ class File extends FileInput {
         
         $this->getValidatorChain()
                 ->attach(new Size(array('min' => '1kB', 'max' => '10MB')))
-                ->attach(new Extension(array('jpg', 'jpeg', 'png', 'gif', )));
+                ->attach(new Extension(array('jpg', 'jpeg', 'png', 'gif',)));
                 //->attach(new MimeType('image'));
 
         parent::__construct($name);

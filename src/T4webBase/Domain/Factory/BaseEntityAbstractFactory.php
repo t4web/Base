@@ -1,6 +1,6 @@
 <?php
 
- namespace T4webBase\Domain\Factory;
+    namespace T4webBase\Domain\Factory;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\AbstractFactoryInterface;

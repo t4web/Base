@@ -6,15 +6,15 @@ abstract class Filter extends InputFilter {
     
     abstract public function getValuesByModules();
     
-    public function filter(array $data){
+    public function filter(array $data) {
         $this->setData($data)
             ->isValid();
     }
     
-    public function getOrderTable(){
+    public function getOrderTable() {
             $values = $this->getValues();
-            foreach ($values as $key => $table){
-                if (array_key_exists('orderBy', $table) && !empty($table['orderBy'])){
+            foreach ($values as $key => $table) {
+                if (array_key_exists('orderBy', $table) && !empty($table['orderBy'])) {
                     return $key;
                 }
             }

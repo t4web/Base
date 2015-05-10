@@ -78,10 +78,10 @@ class Select implements SelectInterface {
     }
      
     public function limitPage($page, $rowCount) {
-        $page     = ($page > 0)     ? $page     : 1;
+        $page     = ($page > 0) ? $page : 1;
         $rowCount = ($rowCount > 0) ? $rowCount : 1;
         
-        $this->limit((int)$rowCount) ;
+        $this->limit((int)$rowCount);
         $this->offset((int)$rowCount * ($page - 1));
         
         return $this;

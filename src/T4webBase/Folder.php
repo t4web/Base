@@ -11,7 +11,7 @@ class Folder
     private $basePath;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getBasePath()
     {
@@ -19,7 +19,7 @@ class Folder
     }
 
     /**
-     * @param mixed $basePath
+     * @param string $basePath
      */
     public function setBasePath($basePath)
     {
@@ -35,7 +35,7 @@ class Folder
     /**
      * make folder path like /00/08/25/22/91
      *
-     * @param int $objectID
+     * @param int $objectId
      * @param int $groupBy
      * @param int $step
      * @return string
@@ -63,11 +63,12 @@ class Folder
      * create folder with empty index.html and 0775 rights
      *
      * @param string $path
-     * @param string $base path WWW_PATH/
      */
     public function prepare($path)
     {
-        if (file_exists($this->getBasePath() . '/' . $path) || empty($path)) return true;
+        if (file_exists($this->getBasePath() . '/' . $path) || empty($path)) {
+            return true;
+        }
 
         $dirs = explode('/', $path);
         $path = '/';
@@ -75,7 +76,9 @@ class Folder
         foreach ($dirs as $dir) {
             $path .= $dir . '/';
 
-            if (file_exists($this->getBasePath() . $path)) continue;
+            if (file_exists($this->getBasePath() . $path)) {
+                continue;
+            }
             mkdir($this->getBasePath() . $path, 0775);
             chmod($this->getBasePath() . $path, 0775);
 
@@ -95,7 +98,9 @@ class Folder
             throw new \Exception('A fatal error occurred while cleaning folder');
         }
 
-        if (!file_exists($this->getBasePath() . '/' . $path) || !is_dir($this->getBasePath() . '/' . $path)) return false;
+        if (!file_exists($this->getBasePath() . '/' . $path) || !is_dir($this->getBasePath() . '/' . $path)) {
+            return false;
+        }
 
         $dirHandle = opendir($this->getBasePath() . '/' . $path);
         while (false !== ($file = readdir($dirHandle))) {

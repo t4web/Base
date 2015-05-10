@@ -44,7 +44,7 @@ interface QueryBuilderInterface {
      */
     public function addFilterLessOrEqual($name, $value);
 
-	/**
+    /**
      * @return QueryBuilderInterface
      */
     public function addFilterLike($name, $value);

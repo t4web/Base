@@ -144,7 +144,7 @@ class Collection extends \ArrayObject {
             return $result;
         }
 
-        $firstElement = ($page-1)*$limit;
+        $firstElement = ($page - 1) * $limit;
         $iterator = $this->getIterator();
         $iterator->seek($firstElement);
         while ($iterator->current() && $result->count() < $limit) {

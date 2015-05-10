@@ -32,7 +32,7 @@ class Table implements TableGatewayInterface {
     
     public function selectOne(Select $select) {
         $select->limit(1)
-               ->offset(0);
+                ->offset(0);
         
         $resultSet = $this->tableGateway->selectWith($select->getZendSelect());
         $result = $resultSet->toArray();
@@ -42,7 +42,7 @@ class Table implements TableGatewayInterface {
 
     // TODO: must refactor
     public function count(Select $select) {
-    	$field = $select->getZendSelect()->getRawState('columns')[0];
+        $field = $select->getZendSelect()->getRawState('columns')[0];
         $select->getZendSelect()->columns(array('count' => new \Zend\Db\Sql\Expression("COUNT($field)")));
         $resultSet = $this->selectMany($select);
         if (empty($resultSet)) {
@@ -64,7 +64,7 @@ class Table implements TableGatewayInterface {
         if (!is_array($primaryKeyValue)) {
             $primaryKeyValue = array($primaryKeyValue);
         }
-        $where = "$attributeName IN (". implode(',', $primaryKeyValue)  .")";
+        $where = "$attributeName IN (" . implode(',', $primaryKeyValue) . ")";
 
         return $this->tableGateway->update($data, array($where));
     }
@@ -77,7 +77,7 @@ class Table implements TableGatewayInterface {
         if (!is_array($primaryKeyValue)) {
             $primaryKeyValue = array($primaryKeyValue);
         }
-        $where = "$attributeName IN (". implode(',', $primaryKeyValue)  .")";
+        $where = "$attributeName IN (" . implode(',', $primaryKeyValue) . ")";
 
         return $this->tableGateway->delete(array($where));
     }

@@ -15,7 +15,7 @@ class Int extends Element {
         ));
 
         $this->getValidatorChain()
-             ->attach($validator);
+                ->attach($validator);
 
         parent::__construct($name);
     }

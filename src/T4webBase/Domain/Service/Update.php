@@ -76,6 +76,9 @@ class Update implements UpdateInterface {
         return $entity;
     }
 
+    /**
+     * @param string $event
+     */
     protected function trigger($event, EntityInterface $entity) {
         if (!$this->eventManager) {
             return;

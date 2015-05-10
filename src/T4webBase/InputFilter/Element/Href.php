@@ -28,6 +28,6 @@ class Href extends Element {
             $href = 'http://' . $href;
         }
 
-        return (bool) filter_var($href, FILTER_VALIDATE_URL);
+        return (bool)filter_var($href, FILTER_VALIDATE_URL);
     }
 }

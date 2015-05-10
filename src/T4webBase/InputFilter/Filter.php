@@ -12,21 +12,21 @@ abstract class Filter extends InputFilter {
     }
     
     public function getOrderTable(){
-         $values = $this->getValues();
-         foreach ($values as $key => $table){
-             if (array_key_exists('orderBy', $table) && !empty($table['orderBy'])){
-                 return $key;
-             }
-         }
+            $values = $this->getValues();
+            foreach ($values as $key => $table){
+                if (array_key_exists('orderBy', $table) && !empty($table['orderBy'])){
+                    return $key;
+                }
+            }
 
         return null;
     }
     
-    public function getOrderBy(){
+    public function getOrderBy() {
         $values = $this->getValues();
         
-        foreach ($values as $table){
-            if (array_key_exists('orderBy', $table) && !empty($table['orderBy'])){
+        foreach ($values as $table) {
+            if (array_key_exists('orderBy', $table) && !empty($table['orderBy'])) {
                 return $table['orderBy'];
             }
         }

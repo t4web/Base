@@ -4,6 +4,7 @@ namespace T4webBase\Module;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\AbstractFactoryInterface;
+use RuntimeException;
 
 /**
  * Fix code duplicates like
@@ -38,7 +39,7 @@ class ConfigAbstractFactory implements AbstractFactoryInterface {
         $config = $moduleManager->getModule($moduleName)->getConfig();
 
         if (empty($config)) {
-            throw new \RuntimeException("Cannot load config for module $moduleName");
+            throw new RuntimeException("Cannot load config for module $moduleName");
         }
         
         return new ModuleConfig($config);

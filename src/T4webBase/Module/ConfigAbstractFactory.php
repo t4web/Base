@@ -13,10 +13,22 @@ use Zend\ServiceManager\AbstractFactoryInterface;
  */
 class ConfigAbstractFactory implements AbstractFactoryInterface {
 
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $name
+     * @param string $requestedName
+     * @return bool
+     */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName) {
         return substr($requestedName, -strlen('ModuleConfig')) == 'ModuleConfig';
     }
 
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $name
+     * @param string $requestedName
+     * @return ModuleConfig
+     */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName) {
         $moduleName = strstr($requestedName, '\ModuleConfig', true);
 

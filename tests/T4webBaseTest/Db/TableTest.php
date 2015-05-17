@@ -7,6 +7,9 @@ use T4webBase\Db\Table;
 
 class TableTest extends \PHPUnit_Framework_TestCase {
 
+    /**
+     * @var Table
+     */
     private $table;
     private $tableGatewayMock;
 
@@ -16,6 +19,64 @@ class TableTest extends \PHPUnit_Framework_TestCase {
             ->getMock();
 
         $this->table = new Table($this->tableGatewayMock, 'id');
+    }
+
+    public function testConstructor()
+    {
+        $this->assertAttributeEquals($this->tableGatewayMock, 'tableGateway', $this->table);
+        $this->assertAttributeEquals('id', 'primaryKey', $this->table);
+    }
+
+    public function testGetName()
+    {
+        $this->tableGatewayMock->expects($this->once())
+            ->method('getTable')
+            ->will($this->returnValue('table_name'));
+
+        $name = $this->table->getName();
+
+        $this->assertEquals('table_name', $name);
+    }
+
+    public function testInsert()
+    {
+        $data = ['key' => 'value'];
+
+        $this->tableGatewayMock->expects($this->once())
+            ->method('insert')
+            ->with($this->equalTo($data));
+
+        $this->table->insert($data);
+    }
+
+    public function testGetLastInsertId()
+    {
+        $this->tableGatewayMock->expects($this->once())
+            ->method('getLastInsertValue')
+            ->will($this->returnValue(11));
+
+        $this->assertEquals(11, $this->table->getLastInsertId());
+    }
+
+    public function testSelectMany()
+    {
+        $select = $this->getMockBuilder('T4webBase\Db\Select')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $result = $this->getMock('Zend\Db\ResultSet\ResultSet');
+
+        $this->tableGatewayMock->expects($this->once())
+            ->method('selectWith')
+            ->will($this->returnValue($result));
+
+        $select->expects($this->once())
+            ->method('getZendSelect')
+            ->will($this->returnValue($this->getMock('Zend\Db\Sql\Select')));
+
+        $result->expects($this->once())
+            ->method('toArray');
+
+        $this->table->selectMany($select);
     }
 
     /**

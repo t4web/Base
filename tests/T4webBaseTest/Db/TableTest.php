@@ -79,6 +79,38 @@ class TableTest extends \PHPUnit_Framework_TestCase {
         $this->table->selectMany($select);
     }
 
+    public function testSelectOne()
+    {
+        $select = $this->getMockBuilder('T4webBase\Db\Select')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $result = $this->getMock('Zend\Db\ResultSet\ResultSet');
+
+        $this->tableGatewayMock->expects($this->once())
+            ->method('selectWith')
+            ->will($this->returnValue($result));
+
+        $select->expects($this->once())
+            ->method('limit')
+            ->with($this->equalTo(1))
+            ->will($this->returnSelf());
+
+        $select->expects($this->once())
+            ->method('offset')
+            ->with($this->equalTo(0))
+            ->will($this->returnSelf());
+
+        $select->expects($this->once())
+            ->method('getZendSelect')
+            ->will($this->returnValue($this->getMock('Zend\Db\Sql\Select')));
+
+        $result->expects($this->once())
+            ->method('toArray')
+            ->will($this->returnValue([]));
+
+        $this->table->selectOne($select);
+    }
+
     /**
      * @dataProvider dataProvider
      */
@@ -126,6 +158,18 @@ class TableTest extends \PHPUnit_Framework_TestCase {
         );
     }
 
+    public function testUpdateByPrimaryKey()
+    {
+        $data = [];
+        $primaryKeyValue = 1;
+
+        $this->tableGatewayMock->expects($this->once())
+            ->method('update')
+            ->with($this->equalTo($data), $this->equalTo(array("id = $primaryKeyValue")));
+
+        $this->table->updateByPrimaryKey($data, $primaryKeyValue);
+    }
+
     /**
      * @dataProvider dataProviderUpdate
      */
@@ -144,6 +188,28 @@ class TableTest extends \PHPUnit_Framework_TestCase {
             array('product_id', array(1, 2, 5), "product_id IN (1,2,5)"),
             array('id', 1, "id IN (1)")
         );
+    }
+
+    public function testDeleteByPrimaryKey()
+    {
+        $primaryKeyValue = 1;
+
+        $this->tableGatewayMock->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(array("id = $primaryKeyValue")));
+
+        $this->table->deleteByPrimaryKey($primaryKeyValue);
+    }
+
+    public function testDelete()
+    {
+        $conditions = [];
+
+        $this->tableGatewayMock->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo($conditions));
+
+        $this->table->delete($conditions);
     }
     
 }

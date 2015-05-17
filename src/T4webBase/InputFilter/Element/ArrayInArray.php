@@ -4,11 +4,13 @@ namespace T4webBase\InputFilter\Element;
 
 use Zend\Validator;
 
-class ArrayInArray extends InArray {
+class ArrayInArray extends InArray
+{
 
-    public function isValid() {
+    public function isValid()
+    {
         $values = $this->value;
-        if(!$values) {
+        if (!$values) {
             return false;
         }
 

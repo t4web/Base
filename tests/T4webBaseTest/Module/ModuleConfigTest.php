@@ -13,14 +13,36 @@ class ModuleConfigTest extends \PHPUnit_Framework_TestCase {
         $this->assertAttributeEquals($config, 'config', $moduleConfig);
     }
     
-    public function testGetCriteriesReturnEmpty() {
-        $criteries = array();
-        $config = array();
+    public function testGetDbDependencies() {
+        $dependencies = array('foo', 'bar');
+
+        $config = array(
+            'db' => array(
+                'dependencies' => $dependencies
+            )
+        );
         
         $moduleConfig = new ModuleConfig($config);
         
+        $this->assertEquals($dependencies, $moduleConfig->getDbDependencies());
+    }
+
+    public function testGetDbDependenciesNotSet() {
+        $config = array();
+
+        $moduleConfig = new ModuleConfig($config);
+
+        $this->assertEquals(array(), $moduleConfig->getDbDependencies());
+    }
+
+    public function testGetCriteriesReturnEmpty() {
+        $criteries = array();
+        $config = array();
+
+        $moduleConfig = new ModuleConfig($config);
+
         $this->assertEquals($criteries, $moduleConfig->getCriteries());
-    } 
+    }
     
     public function testGetCriteries() {
         $criteries = array(
@@ -43,7 +65,33 @@ class ModuleConfigTest extends \PHPUnit_Framework_TestCase {
         $moduleConfig = new ModuleConfig($config);
         
         $this->assertEquals($criteries, $moduleConfig->getCriteries());
-    } 
+    }
+
+    public function testGetDbTablePrimaryKey() {
+        $tableAlias = 'users';
+        $pk = 'user_id';
+
+        $config = array(
+            'db' => array(
+                'tables' => array(
+                    $tableAlias => array('pk' => $pk)
+                )
+            )
+        );
+
+        $moduleConfig = new ModuleConfig($config);
+
+        $this->assertEquals($pk, $moduleConfig->getDbTablePrimaryKey($tableAlias));
+    }
+
+    public function testGetDbTablePrimaryKeyNotSet() {
+        $tableAlias = 'users';
+        $config = array();
+
+        $moduleConfig = new ModuleConfig($config);
+
+        $this->assertEquals('id', $moduleConfig->getDbTablePrimaryKey($tableAlias));
+    }
     
     public function testGetDbTableColumnsAsAttributesMap() {
         $columnsAsAttributesMap = array('foo' => 'bar');

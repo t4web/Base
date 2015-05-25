@@ -7,11 +7,13 @@ use Zend\Validator;
 class Phone extends Element {
 
     private $pattern;
+    private $errorPattern;
 
-    public function __construct($name = null, $pattern = '/^\+38 \(\d{3}\) \d{3}-\d{2}-\d{2}$/')
+    public function __construct($name = null, $pattern = '/^\+38 \(\d{3}\) \d{3}-\d{2}-\d{2}$/', $errorPattern = '+38 (###) ###-##-##')
     {
         parent::__construct($name);
         $this->pattern = $pattern;
+        $this->errorPattern = $errorPattern;
     }
 
     public function isValid($context = null)
@@ -20,7 +22,7 @@ class Phone extends Element {
         $result = parent::isValid($context);
 
         if (!preg_match($this->pattern, $context[$name])) {
-            $this->setErrorMessage('Неверный формат номера: +38 (###) ###-##-##');
+            $this->setErrorMessage('Неверный формат номера: ' . $this->errorPattern);
             $result = false;
         }
 

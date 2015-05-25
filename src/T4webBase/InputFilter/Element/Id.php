@@ -20,8 +20,8 @@ class Id extends Element {
         ));
 
         $this->getValidatorChain()
-             ->attach($validatorGreaterThan)
-             ->attach($validatorDigits);
+                ->attach($validatorGreaterThan)
+                ->attach($validatorDigits);
 
         parent::__construct($name);
     }

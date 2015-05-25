@@ -4,12 +4,13 @@ namespace T4webBase\Domain\Service;
 
 use Zend\EventManager\EventManager;
 use T4webBase\InputFilter\InputFilterInterface;
-use T4webBase\InputFilter\InvalidInputError;
+use T4webBase\InputFilter\ErrorAwareTrait;
 use T4webBase\Domain\Repository\DbRepository;
 use T4webBase\Domain\Criteria\Factory as CriteriaFactory;
 use T4webBase\Domain\EntityInterface;
 
 class Update implements UpdateInterface {
+    use ErrorAwareTrait;
 
     /**
      * @var InputFilterInterface
@@ -31,11 +32,6 @@ class Update implements UpdateInterface {
      */
     protected $eventManager;
 
-    /**
-     * @var InvalidInputError
-     */
-    protected $errors;
-
     public function __construct(
         InputFilterInterface $inputFilter,
         DbRepository $repository,
@@ -51,7 +47,7 @@ class Update implements UpdateInterface {
     public function isValid(array $data) {
         $this->inputFilter->setData($data);
         if (!$this->inputFilter->isValid()) {
-            $this->errors = new InvalidInputError($this->inputFilter->getMessages());
+            $this->setErrors($this->inputFilter->getMessages());
             return false;
         }
         return true;
@@ -63,7 +59,6 @@ class Update implements UpdateInterface {
      * @return EntityInterface|void
      */
     public function update($id, array $data) {
-
         if (!$this->isValid($data)) {
             return;
         }
@@ -81,6 +76,9 @@ class Update implements UpdateInterface {
         return $entity;
     }
 
+    /**
+     * @param string $event
+     */
     protected function trigger($event, EntityInterface $entity) {
         if (!$this->eventManager) {
             return;
@@ -90,7 +88,7 @@ class Update implements UpdateInterface {
     }
 
     public function activate($id) {
-        /*@var $entity \T4webBase\Domain\Entity */
+        /** @var $entity \T4webBase\Domain\Entity */
         $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria('Id', $id));
         if (!$entity) {
             return false;
@@ -105,7 +103,7 @@ class Update implements UpdateInterface {
     }
 
     public function inactivate($id) {
-        /*@var $entity \T4webBase\Domain\Entity */
+        /** @var $entity \T4webBase\Domain\Entity */
         $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria('Id', $id));
         if (!$entity) {
             return false;
@@ -120,7 +118,7 @@ class Update implements UpdateInterface {
     }
 
     public function delete($id) {
-        /*@var $entity \T4webBase\Domain\Entity */
+        /** @var $entity \T4webBase\Domain\Entity */
         $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria('Id', $id));
         if (!$entity) {
             return false;
@@ -132,10 +130,6 @@ class Update implements UpdateInterface {
         $this->trigger('delete:post', $entity);
 
         return true;
-    }
-
-    public function getErrors() {
-        return $this->errors;
     }
 
     public function getValues() {

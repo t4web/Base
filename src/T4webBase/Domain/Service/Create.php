@@ -4,12 +4,13 @@ namespace T4webBase\Domain\Service;
 
 use Zend\EventManager\EventManager;
 use T4webBase\InputFilter\InputFilterInterface;
-use T4webBase\InputFilter\InvalidInputError;
+use T4webBase\InputFilter\ErrorAwareTrait;
 use T4webBase\Domain\Repository\DbRepository;
 use T4webBase\Domain\Factory\EntityFactoryInterface;
 use T4webBase\Domain\EntityInterface;
 
 class Create implements CreateInterface {
+    use ErrorAwareTrait;
 
     /**
      * @var InputFilterInterface
@@ -31,11 +32,6 @@ class Create implements CreateInterface {
      */
     protected $eventManager;
 
-    /**
-     * @var InvalidInputError
-     */
-    protected $errors;
-
     public function __construct(
             InputFilterInterface $inputFilter,
             DbRepository $repository,
@@ -56,7 +52,7 @@ class Create implements CreateInterface {
         $this->inputFilter->setData($data);
 
         if (!$this->inputFilter->isValid()) {
-            $this->errors = new InvalidInputError($this->inputFilter->getMessages());
+            $this->setErrors($this->inputFilter->getMessages());
             return false;
         }
         return true;
@@ -67,7 +63,6 @@ class Create implements CreateInterface {
      * @return EntityInterface|null
      */
     public function create(array $data) {
-
         if (!$this->isValid($data)) {
             return;
         }
@@ -92,10 +87,6 @@ class Create implements CreateInterface {
         }
 
         $this->eventManager->trigger('create:post', $this, compact('entity'));
-    }
-    
-    public function getErrors() {
-        return $this->errors;
     }
     
     public function getValues() {

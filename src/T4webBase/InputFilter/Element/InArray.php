@@ -15,6 +15,6 @@ class InArray extends Element {
         ));
 
         $this->getValidatorChain()
-             ->attach($validator);
+                ->attach($validator);
     }
 }

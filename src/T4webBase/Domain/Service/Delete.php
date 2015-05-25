@@ -6,9 +6,11 @@ use T4webBase\Domain\Repository\DbRepository;
 use T4webBase\Domain\Criteria\Factory as CriteriaFactory;
 use Zend\EventManager\EventManager;
 use T4webBase\Domain\Criteria\AbstractCriteria;
+use T4webBase\InputFilter\ErrorAwareTrait;
 
 class Delete implements DeleteInterface {
-    
+    use ErrorAwareTrait;
+
     /**
      *
      * @var \T4webBase\Domain\Repository\DbRepository
@@ -34,6 +36,7 @@ class Delete implements DeleteInterface {
     public function delete($id, $attribyteName = 'Id') {
         $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria($attribyteName, $id));
         if (!$entity) {
+            $this->setErrors(array('general' => sprintf("Entity #%s does not found.", $id)));
             return false;
         }
         
@@ -49,6 +52,7 @@ class Delete implements DeleteInterface {
         $criteria = $this->criteriaFactory->getNativeCriteria($attributeName, $attributeValue);
         $collection = $this->repository->findMany($criteria);
         if (!$collection->count()) {
+            $this->setErrors(array('general' => 'Entities does not found.'));
             return false;
         }
 

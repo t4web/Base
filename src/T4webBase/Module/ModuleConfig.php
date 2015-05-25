@@ -37,15 +37,6 @@ class ModuleConfig {
         return $this->config['db']['tables'][$tableAlias]['pk'];
     }
 
-    public function getSizes($sizeAlias) {
-        $sizes = array();
-        if (isset($this->config['sizes'][$sizeAlias])) {
-            $sizes = $this->config['sizes'][$sizeAlias];
-        }
-        
-        return $sizes;
-    }
-    
     public function getDbTableColumnsAsAttributesMap($tableAlias) {
         
         if (!isset($this->config['db']['tables'][$tableAlias]['columnsAsAttributesMap'])) {

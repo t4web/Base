@@ -36,7 +36,7 @@ class Email extends Element {
         ));
 
         $this->getValidatorChain()
-             ->attach($validator, true);
+                ->attach($validator, true);
         
         parent::__construct($name);
     }

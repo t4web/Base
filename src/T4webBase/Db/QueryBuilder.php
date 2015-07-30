@@ -128,6 +128,18 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this;
     }
 
+    public function addFilterLikeBefore($name, $value) {
+        $this->where["$name LIKE ?"] = "%$value";
+
+        return $this;
+    }
+
+    public function addFilterLikeNext($name, $value) {
+        $this->where["$name LIKE ?"] = "$value%";
+
+        return $this;
+    }
+
     public function addOrFilterLike($name, $value) {
         $this->orWhere["$name LIKE ?"] = "%$value%";
 

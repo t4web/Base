@@ -4,6 +4,7 @@ namespace T4webBase\InputFilter\Element;
 
 use Zend\InputFilter\Input;
 use Zend\Validator;
+use T4webBase\Filter\String as FilterString;
 
 class Element extends Input {
 
@@ -21,6 +22,9 @@ class Element extends Input {
             ));
             $this->getValidatorChain()->prependValidator($notEmpty, true);
         }
+
+        $this->getFilterChain()
+            ->attach(new FilterString());
     }
 
     public function isValid($context = null) {

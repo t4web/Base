@@ -2,14 +2,17 @@
 
 namespace T4webBase\Domain\Repository;
 
-use Zend\EventManager\EventManagerInterface;
 use T4webBase\Domain\Mapper\DbMapperInterface;
 use T4webBase\Db\TableGatewayInterface;
 use T4webBase\Db\QueryBuilderInterface;
 use T4webBase\Domain\Criteria\CriteriaInterface;
 use T4webBase\Domain\EntityInterface;
+use T4webBase\Domain\Collection;
+use Zend\EventManager\Event;
+use Zend\EventManager\EventManagerInterface;
 
-class DbRepository {
+class DbRepository
+{
 
     /**
      * @var DbMapperInterface
@@ -47,13 +50,14 @@ class DbRepository {
     protected $event;
 
     public function __construct(
-            TableGatewayInterface $tableGateway,
-            DbMapperInterface $dbMapper,
-            QueryBuilderInterface $queryBuilder,
-            IdentityMap $identityMap,
-            IdentityMap $identityMapOriginal,
-            EventManagerInterface $eventManager) {
-        
+        TableGatewayInterface $tableGateway,
+        DbMapperInterface $dbMapper,
+        QueryBuilderInterface $queryBuilder,
+        IdentityMap $identityMap,
+        IdentityMap $identityMapOriginal,
+        EventManagerInterface $eventManager
+    ) {
+
         $this->tableGateway = $tableGateway;
         $this->dbMapper = $dbMapper;
         $this->queryBuilder = $queryBuilder;
@@ -65,41 +69,48 @@ class DbRepository {
     /**
      * @deprecated use constructor for this
      */
-    public function setIdentityMap(IdentityMap $identityMap) {
+    public function setIdentityMap(IdentityMap $identityMap)
+    {
         $this->identityMap = $identityMap;
+
         return $this;
     }
-    
-    public function getIdentityMap() {
+
+    public function getIdentityMap()
+    {
         return $this->identityMap;
     }
-    
+
     /**
      * @param \T4webBase\Domain\Criteria\CriteriaInterface $criteria
      * @return \T4webBase\Domain\Collection
      */
-    public function findMany(CriteriaInterface $criteria) {
+    public function findMany(CriteriaInterface $criteria)
+    {
         $criteria->build($this->queryBuilder);
-        
+
         $select = $this->queryBuilder->getQuery();
-        
+
         $rows = $this->tableGateway->selectMany($select);
-        
+
+        /** @var Collection $collection */
         $collection = $this->dbMapper->fromTableRows($rows);
-        
+        $this->trigger('select:post', $collection);
+
         foreach ($collection as $entity) {
             $this->toIdentityMap($entity);
         }
-        
+
         return $collection;
     }
-    
+
     /**
      * @param CriteriaInterface $criteria
-     * @param array $columns
+     * @param array             $columns
      * @return array
      */
-    public function findManyByColumns(CriteriaInterface $criteria, array $columns) {
+    public function findManyByColumns(CriteriaInterface $criteria, array $columns)
+    {
         if (!array_search('id', $columns)) {
             $columns[] = 'id';
         }
@@ -114,39 +125,43 @@ class DbRepository {
 
         return $rows;
     }
-    
+
     /**
      * @param \T4webBase\Domain\Criteria\CriteriaInterface $criteria
      * @return \T4webBase\Domain\EntityInterface
      */
-    public function find(CriteriaInterface $criteria) {
+    public function find(CriteriaInterface $criteria)
+    {
         $criteria->build($this->queryBuilder);
-        
+
         $select = $this->queryBuilder->getQuery();
-        
+
         $row = $this->tableGateway->selectOne($select);
         if (empty($row)) {
             return null;
         }
-        
+
         $entity = $this->dbMapper->fromTableRow($row);
-        
+        $this->trigger('select:post', $entity);
+
         $this->toIdentityMap($entity);
-        
+
         return $entity;
     }
-    
-    public function count(CriteriaInterface $criteria) {
+
+    public function count(CriteriaInterface $criteria)
+    {
         $criteria->build($this->queryBuilder);
-        
+
         $select = $this->queryBuilder->getQuery();
-        
+
         return $this->tableGateway->count($select);
     }
-    
-    public function add(EntityInterface $entity) {
+
+    public function add(EntityInterface $entity)
+    {
         $data = $this->dbMapper->toTableRow($entity);
-        
+
         $id = $entity->getId();
 
         if ($this->getIdentityMap()->offsetExists((int)$id)) {
@@ -167,7 +182,7 @@ class DbRepository {
         } else {
 
             $this->tableGateway->insert($data);
-        
+
             if (empty($id)) {
                 $id = $this->tableGateway->getLastInsertId();
                 $entity->populate(compact('id'));
@@ -176,42 +191,51 @@ class DbRepository {
             $this->toIdentityMap($entity);
         }
     }
-    
-    public function delete(EntityInterface $entity) {
+
+    public function delete(EntityInterface $entity)
+    {
         $id = $entity->getId();
-        
+
         if (!empty($id)) {
             return $this->tableGateway->deleteByPrimaryKey($id);
         }
-        
+
         return false;
     }
 
-    public function deleteByAttribute($attributeValue, $attributeName = 'id') {
+    public function deleteByAttribute($attributeValue, $attributeName = 'id')
+    {
         if (empty($attributeValue)) {
             return false;
         }
+
         return $this->tableGateway->deleteByAttribute($attributeName, $attributeValue);
     }
 
-    public function updateByAttribute($data, $attributeValue, $attributeName = 'id') {
+    public function updateByAttribute($data, $attributeValue, $attributeName = 'id')
+    {
         if (empty($attributeValue)) {
             return false;
         }
+
         return $this->tableGateway->updateByAttribute($data, $attributeName, $attributeValue);
     }
 
-    protected function isEntityChanged(EntityInterface $changedEntity) {
+    protected function isEntityChanged(EntityInterface $changedEntity)
+    {
         $originalEntity = $this->identityMapOriginal->offsetGet($changedEntity->getId());
+
         return $changedEntity != $originalEntity;
     }
 
-    protected function triggerChanges(EntityChangedEvent $e) {
+    protected function triggerChanges(EntityChangedEvent $e)
+    {
         $changedEntity = $e->getChangedEntity();
         $this->eventManager->trigger($this->getEntityChangeEventName($changedEntity), $this, $e);
     }
 
-    protected function triggerAttributesChange(EntityChangedEvent $e) {
+    protected function triggerAttributesChange(EntityChangedEvent $e)
+    {
         $changedEntity = $e->getChangedEntity();
 
         $originalAttrs = $e->getOriginalEntity()->extract();
@@ -222,27 +246,53 @@ class DbRepository {
         }
     }
 
-    protected function getEntityChangeEventName(EntityInterface $changedEntity) {
+    protected function getEntityChangeEventName(EntityInterface $changedEntity)
+    {
         return sprintf('entity:%s:changed', get_class($changedEntity));
     }
 
-    protected function getAttributeChangeEventName(EntityInterface $changedEntity, $attributeName) {
+    protected function getAttributeChangeEventName(EntityInterface $changedEntity, $attributeName)
+    {
         return sprintf('attribute:%s:%s:changed', get_class($changedEntity), $attributeName);
     }
 
     /**
      * @return EntityChangedEvent
      */
-    protected function getEvent() {
+    protected function getEvent()
+    {
         if (null === $this->event) {
             $this->event = new EntityChangedEvent();
             $this->event->setTarget($this);
         }
+
         return $this->event;
     }
 
-    protected function toIdentityMap(EntityInterface $entity) {
+    protected function toIdentityMap(EntityInterface $entity)
+    {
         $this->getIdentityMap()->offsetSet($entity->getId(), $entity);
         $this->identityMapOriginal->offsetSet($entity->getId(), clone $entity);
+    }
+
+    /**
+     * @param $name
+     * @param $entity
+     */
+    private function trigger($name, &$entity)
+    {
+
+        if (!empty($entity) && $entity instanceof Collection) {
+            $this->eventManager->addIdentifiers(get_class($entity->getFirst()));
+        } else {
+            $this->eventManager->addIdentifiers(get_class($entity));
+        }
+
+        $event = new Event($name, $this, compact('entity'));
+        $this->eventManager->trigger($event);
+
+        if ($event->getParam('entity') && $event->getParam('entity') instanceof EntityInterface) {
+            $entity = $event->getParam('entity');
+        }
     }
 }

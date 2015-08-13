@@ -3,6 +3,7 @@
 namespace T4webBase\Domain\Service;
 
 use Zend\EventManager\EventManager;
+use Zend\EventManager\Event;
 use T4webBase\InputFilter\InputFilterInterface;
 use T4webBase\InputFilter\ErrorAwareTrait;
 use T4webBase\Domain\Repository\DbRepository;
@@ -70,7 +71,18 @@ class Update implements UpdateInterface {
 
         $entity->populate($data);
 
+        if ($this->eventManager) {
+            $name = 'update:pre';
+            $event = new Event($name, $this, compact('entity'));
+            $this->eventManager->trigger($event);
+
+            if($event->getParam('entity') && $event->getParam('entity') instanceof EntityInterface) {
+                $entity = $event->getParam('entity');
+            }
+        }
+
         $this->repository->add($entity);
+
         $this->trigger('update:post', $entity);
 
         return $entity;

@@ -23,15 +23,15 @@ class Element extends Input {
         }
     }
 
-    public function isValid($context = null) {
-        $result = parent::isValid($context);
+    // public function isValid($context = null) {
+    //     $result = parent::isValid($context);
 
-        if (!$result) {
-            $this->value = $this->defaultValue;
-        }
+    //     if (!$result) {
+    //         $this->value = $this->defaultValue;
+    //     }
         
-        return $result;
-    }
+    //     return $result;
+    // }
     
     public function isDefaultValue() {
         return $this->value === $this->defaultValue;

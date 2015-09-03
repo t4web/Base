@@ -54,7 +54,7 @@ abstract class AbstractCriteria implements CriteriaInterface {
     }
     
     protected function callBuildMethod(QueryBuilderInterface $queryBuilder) {
-        if (in_array($this->buildMethod, array('group', 'limit', 'page', 'order'))) {
+        if (in_array($this->buildMethod, array('group', 'limit', 'offset', 'page', 'order'))) {
             $queryBuilder->{$this->buildMethod}($this->value);
             return;
         }

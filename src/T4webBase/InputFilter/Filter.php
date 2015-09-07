@@ -9,6 +9,8 @@ abstract class Filter extends InputFilter {
     public function filter(array $data) {
         $this->setData($data)
             ->isValid();
+
+        return $this->getValuesByModules();
     }
     
     public function getOrderTable() {

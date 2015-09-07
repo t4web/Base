@@ -9,6 +9,8 @@ class Element extends Input {
 
     protected $defaultValue;
 
+    protected $ignoreValue;
+
     public function __construct($name = '') {
         parent::__construct($name);
 
@@ -23,9 +25,26 @@ class Element extends Input {
         }
     }
 
-    public function isValid($context = null) {
-        $result = parent::isValid($context);
+    public function getValue() {
+        $value = parent::getValue();
 
+        if (null === $value && null === $this->ignoreValue) {
+            $value = $this->defaultValue;
+        }
+
+        return $value;
+    }
+
+    public function isValid($context = null) {
+        if (null !== $this->ignoreValue
+            && isset($context[$this->getName()])
+            && $context[$this->getName()] == $this->ignoreValue) {
+
+            $this->value = null;
+            return true;
+        }
+
+        $result = parent::isValid($context);
         if (!$result) {
             $this->value = $this->defaultValue;
         }
@@ -41,5 +60,8 @@ class Element extends Input {
         $this->defaultValue = $value;
         return $this;
     }
-    
+
+    public function setIgnoreValue($ignoreValue) {
+        $this->ignoreValue = $ignoreValue;
+    }
 }

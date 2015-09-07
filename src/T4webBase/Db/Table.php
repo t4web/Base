@@ -42,6 +42,10 @@ class Table implements TableGatewayInterface {
 
     // TODO: must refactor
     public function count(Select $select) {
+        $select->reset('limit');
+        $select->reset('offset');
+        $select->reset('order');
+
         $field = $select->getZendSelect()->getRawState('columns')[0];
         $select->getZendSelect()->columns(array('count' => new \Zend\Db\Sql\Expression("COUNT($field)")));
         $resultSet = $this->selectMany($select);

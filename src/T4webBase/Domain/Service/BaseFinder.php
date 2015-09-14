@@ -47,4 +47,12 @@ class BaseFinder {
 
         return $this->repositoryDb->findManyByColumns($criteria, $columns);
     }
+
+    public function getById($id) {
+        return $this->repositoryDb->find($this->criteriaFactory->getNativeCriteria("Id", $id));
+    }
+
+    public function getByIds(array $ids) {
+        return $this->repositoryDb->findMany($this->criteriaFactory->getNativeCriteria("Ids", $ids));
+    }
 }

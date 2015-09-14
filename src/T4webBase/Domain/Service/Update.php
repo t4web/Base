@@ -29,10 +29,21 @@ class Update implements UpdateInterface {
     protected $criteriaFactory;
 
     /**
+     * @var EntityInterface
+     */
+    protected $entity;
+
+    /**
      * @var EventManager
      */
     protected $eventManager;
 
+    /**
+     * @param InputFilterInterface $inputFilter
+     * @param DbRepository $repository
+     * @param CriteriaFactory $criteriaFactory
+     * @param EventManager|null $eventManager
+     */
     public function __construct(
         InputFilterInterface $inputFilter,
         DbRepository $repository,
@@ -45,6 +56,17 @@ class Update implements UpdateInterface {
         $this->eventManager = $eventManager;
     }
 
+    /**
+     * @return EntityInterface
+     */
+    public function getEntity() {
+        return $this->entity;
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     */
     public function isValid(array $data) {
         $this->inputFilter->setData($data);
         if (!$this->inputFilter->isValid()) {
@@ -60,16 +82,18 @@ class Update implements UpdateInterface {
      * @return EntityInterface|void
      */
     public function update($id, array $data) {
-        if (!$this->isValid($data)) {
-            return;
+
+        $this->entity = $this->repository->find($this->criteriaFactory->getNativeCriteria('Id', $id));
+        if (!$this->entity) {
+            return false;
         }
 
+        if (!$this->isValid($data)) {
+            return false;
+        }
         $data = $this->inputFilter->getValues();
 
-        /** @var EntityInterface $entity */
-        $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria('Id', $id));
-
-        $entity->populate($data);
+        $this->entity->populate($data);
 
         if ($this->eventManager) {
             $name = 'update:pre';
@@ -77,15 +101,15 @@ class Update implements UpdateInterface {
             $this->eventManager->trigger($event);
 
             if($event->getParam('entity') && $event->getParam('entity') instanceof EntityInterface) {
-                $entity = $event->getParam('entity');
+                $this->entity = $event->getParam('entity');
             }
         }
 
-        $this->repository->add($entity);
+        $this->repository->add($this->entity);
 
-        $this->trigger('update:post', $entity);
+        $this->trigger('update:post', $this->entity);
 
-        return $entity;
+        return $this->entity;
     }
 
     /**

@@ -97,7 +97,7 @@ class Update implements UpdateInterface {
 
         if ($this->eventManager) {
             $name = 'update:pre';
-            $event = new Event($name, $this, ['entity' => $this->entity]);
+            $event = new Event($name, $this, array('entity' => $this->entity));
             $this->eventManager->trigger($event);
 
             if($event->getParam('entity') && $event->getParam('entity') instanceof EntityInterface) {

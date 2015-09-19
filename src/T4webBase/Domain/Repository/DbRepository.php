@@ -160,20 +160,21 @@ class DbRepository
 
     public function add(EntityInterface $entity)
     {
-        $data = $this->dbMapper->toTableRow($entity);
-
         $id = $entity->getId();
 
         if ($this->getIdentityMap()->offsetExists((int)$id)) {
             if (!$this->isEntityChanged($entity)) {
                 return;
             }
-            $result = $this->tableGateway->updateByPrimaryKey($data, $id);
 
             $e = $this->getEvent();
             $originalEntity = $this->identityMapOriginal->offsetGet($entity->getId());
             $e->setOriginalEntity($originalEntity);
             $e->setChangedEntity($entity);
+
+            $this->triggerPreChanges($e);
+
+            $result = $this->tableGateway->updateByPrimaryKey($this->dbMapper->toTableRow($entity), $id);
 
             $this->triggerChanges($e);
             $this->triggerAttributesChange($e);
@@ -181,7 +182,7 @@ class DbRepository
             return $result;
         } else {
 
-            $this->tableGateway->insert($data);
+            $this->tableGateway->insert($this->dbMapper->toTableRow($entity));
 
             if (empty($id)) {
                 $id = $this->tableGateway->getLastInsertId();
@@ -232,6 +233,12 @@ class DbRepository
     {
         $changedEntity = $e->getChangedEntity();
         $this->eventManager->trigger($this->getEntityChangeEventName($changedEntity), $this, $e);
+    }
+
+    protected function triggerPreChanges(EntityChangedEvent $e)
+    {
+        $changedEntity = $e->getChangedEntity();
+        $this->eventManager->trigger($this->getEntityChangeEventName($changedEntity) . ':pre', $this, $e);
     }
 
     protected function triggerAttributesChange(EntityChangedEvent $e)

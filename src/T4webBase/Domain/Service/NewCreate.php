@@ -43,6 +43,8 @@ class NewCreate implements NewCreateInterface {
         }
         
         $entity = $this->entityFactory->create($data);
+
+        $this->eventManager->trigger(__FUNCTION__ . ':pre', $this, compact('entity'));
         $this->repository->add($entity);
         $this->eventManager->trigger(__FUNCTION__ . ':post', $this, compact('entity'));
         

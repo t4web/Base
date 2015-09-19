@@ -7,22 +7,38 @@ use T4webBase\Domain\Criteria\Factory as CriteriaFactory;
 use Zend\EventManager\EventManager;
 use T4webBase\Domain\Criteria\AbstractCriteria;
 use T4webBase\InputFilter\ErrorAwareTrait;
+use T4webBase\Domain\EntityInterface;
 
 class Delete implements DeleteInterface {
+
     use ErrorAwareTrait;
 
     /**
+     * @var EntityInterface
+     */
+    protected $entity;
+
+    /**
      *
-     * @var \T4webBase\Domain\Repository\DbRepository
+     * @var DbRepository
      */
     protected $repository;
+
+    /**
+     * @var EventManager
+     */
     protected $eventManager;
     /**
      *
-     * @var \T4webBase\Domain\Criteria\Factory
+     * @var CriteriaFactory
      */
     protected $criteriaFactory;
-    
+
+    /**
+     * @param DbRepository $repository
+     * @param CriteriaFactory $criteriaFactory
+     * @param EventManager|null $eventManager
+     */
     public function __construct(
             DbRepository $repository,
             CriteriaFactory $criteriaFactory,
@@ -32,21 +48,33 @@ class Delete implements DeleteInterface {
         $this->criteriaFactory = $criteriaFactory;
         $this->eventManager = $eventManager;
     }
-    
+
+    /**
+     * @return EntityInterface
+     */
+    public function getEntity() {
+        return $this->entity;
+    }
+
+    /**
+     * @param $id
+     * @param string $attribyteName
+     * @return bool|EntityInterface
+     */
     public function delete($id, $attribyteName = 'Id') {
-        $entity = $this->repository->find($this->criteriaFactory->getNativeCriteria($attribyteName, $id));
-        if (!$entity) {
+        $this->entity = $this->repository->find($this->criteriaFactory->getNativeCriteria($attribyteName, $id));
+        if (!$this->entity) {
             $this->setErrors(array('general' => sprintf("Entity #%s does not found.", $id)));
             return false;
         }
         
-        $this->repository->delete($entity);
+        $this->repository->delete($this->entity);
 
-        $this->trigger('delete:post', $entity, 'entity');
+        $this->trigger('delete:post', $this->entity, 'entity');
         
-        return $entity;
+        return $this->entity;
     }
-    
+
     public function deleteAll($attributeValue, $attributeName = 'Id') {
         /** @var $criteria AbstractCriteria */
         $criteria = $this->criteriaFactory->getNativeCriteria($attributeName, $attributeValue);

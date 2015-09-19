@@ -204,10 +204,8 @@ class DbRepositoryTest extends \PHPUnit_Framework_TestCase {
         $this->identityMapOriginalMock->offsetSet($id, $originalEntity);
         $this->identityMapMock->offsetSet($id, $originalEntity);
 
-        $this->dbMapperMock->expects($this->once())
-            ->method('toTableRow')
-            ->with($this->equalTo($changedEntity))
-            ->will($this->returnValue($data));
+        $this->dbMapperMock->expects($this->never())
+            ->method('toTableRow');
 
         $this->tableGatewayMock->expects($this->never())
             ->method('updateByPrimaryKey');

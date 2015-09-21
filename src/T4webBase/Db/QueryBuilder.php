@@ -5,6 +5,7 @@ namespace T4webBase\Db;
 use Zend\Db\Sql\Predicate\IsNotNull;
 use Zend\Db\Sql\Predicate\IsNull;
 use Zend\Db\Sql\Predicate\NotIn;
+use Zend\Db\Sql\Predicate\Expression;
 
 class QueryBuilder implements QueryBuilderInterface {
 
@@ -231,6 +232,20 @@ class QueryBuilder implements QueryBuilderInterface {
         $this->orWhere["$name = ?"] = $value;
 
         return $this;
+    }
+
+    /**
+     * @param $query
+     * @return Expression
+     */
+    public  function addWhere($query)
+    {
+
+        if($query instanceof Expression) {
+            return $this->where[] = $query;
+
+        }
+        return $this->where[] = new Expression($query);
     }
 
     private function clear() {

@@ -190,6 +190,8 @@ class DbRepository
             }
 
             $this->toIdentityMap($entity);
+
+            $this->triggerCreate($entity);
         }
     }
 
@@ -220,6 +222,14 @@ class DbRepository
         }
 
         return $this->tableGateway->updateByAttribute($data, $attributeName, $attributeValue);
+    }
+
+    protected function triggerCreate(EntityInterface $createdEntity)
+    {
+        $this->trigger(
+            sprintf('entity:%s:created', get_class($createdEntity)),
+            $createdEntity
+        );
     }
 
     protected function isEntityChanged(EntityInterface $changedEntity)

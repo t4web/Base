@@ -20,7 +20,18 @@ trait ErrorAwareTrait {
      * @return InvalidInputError
      */
     public function getErrors() {
+        if (!$this->errors) {
+            $this->setErrors([]);
+        }
+
         return $this->errors;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasErrors() {
+        return $this->errors->hasErrors();
     }
 
 }

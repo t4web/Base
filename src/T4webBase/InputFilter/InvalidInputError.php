@@ -13,11 +13,20 @@ class InvalidInputError {
         $this->errors = $errors;
     }
 
+    public function addErrors(array $errors)
+    {
+        $this->errors += $errors;
+    }
+
     /**
      * @param string $fieldName
      * @return bool
      */
-    public function hasErrors($fieldName) {
+    public function hasErrors($fieldName = '') {
+
+        if (empty($fieldName)) {
+            return !empty($this->errors);
+        }
 
         if (!array_key_exists($fieldName, $this->errors)) {
             return false;

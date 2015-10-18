@@ -3,7 +3,7 @@
 namespace T4webBase\Domain\Service;
 
 use Zend\EventManager\EventManager;
-use T4webBase\InputFilter\InputFilterInterface;
+use Zend\InputFilter\InputFilterInterface;
 use T4webBase\InputFilter\ErrorAwareTrait;
 use T4webBase\Domain\Repository\DbRepository;
 use T4webBase\Domain\Criteria\Factory as CriteriaFactory;

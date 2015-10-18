@@ -2,7 +2,7 @@
 
 namespace T4webBase\Domain\Service;
 
-use T4webBase\InputFilter\InputFilterInterface;
+use Zend\InputFilter\InputFilterInterface;
 use T4webBase\Domain\Repository\DbRepository;
 use T4webBase\Domain\Factory\EntityFactoryInterface;
 use Zend\EventManager\EventManagerInterface;

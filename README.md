@@ -8,3 +8,4 @@ Master:
 [![Dependency Status](https://www.versioneye.com/user/projects/554f0043507efb7e9e00001b/badge.svg?style=flat)](https://www.versioneye.com/user/projects/554f0043507efb7e9e00001b)
 
 ZF2 Module. A set of generic (abstract) classes which are commonly used across multiple modules.
+

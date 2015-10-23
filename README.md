@@ -9,3 +9,41 @@ Master:
 
 ZF2 Module. A set of generic (abstract) classes which are commonly used across multiple modules.
 
+## Contents
+- [Requirements](#requirements)
+- [Installation](#installation)
+
+Requirements
+------------
+* [Zend Framework 2](https://github.com/zendframework/zf2) (latest master)
+
+Installation
+------------
+
+Add this project in your composer.json:
+
+```json
+"require": {
+    "t4web/base": "~1.0.0"
+}
+```
+
+Now tell composer to download Authentication by running the command:
+
+```bash
+$ php composer.phar update
+```
+
+Enabling it in your `application.config.php`file.
+
+```php
+<?php
+return array(
+    'modules' => array(
+        // ...
+        'T4webBase',
+    ),
+    // ...
+);
+```
+

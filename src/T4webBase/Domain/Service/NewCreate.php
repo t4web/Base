@@ -2,10 +2,10 @@
 
 namespace T4webBase\Domain\Service;
 
-use T4webBase\InputFilter\InputFilterInterface;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\EventManager\EventManagerInterface;
 use T4webBase\Domain\Repository\DbRepository;
 use T4webBase\Domain\Factory\EntityFactoryInterface;
-use Zend\EventManager\EventManagerInterface;
 
 class NewCreate implements NewCreateInterface {
     
